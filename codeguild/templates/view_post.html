@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en, it">
+<head>
+    <title>Code Guild | View Post</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/icon.png') }}">
+</head>
+
+<script>
+    function limitTextareaLine(e) {
+  const newLine = /\r*\n/g;
+  const value = e.target.value;
+  const newLines = (value.match(newLine) || []).length;
+
+  const lines = value.split(newLine);
+
+
+  if (e.keyCode === 13 && lines.length >= e.target.rows) {
+    e.preventDefault();
+    return;
+  }
+
+  const lineNo = value.substr(0, e.target.selectionStart).split(newLine).length - 1;
+
+
+  if (e.keyCode === 8 && ~value.charAt(e.target.selectionStart - 1).search(newLine)) {
+    if (lines[lineNo].length + lines[lineNo - 1].length <= e.target.cols) return;
+
+    e.preventDefault();
+    return;
+  }
+
+
+  if (e.keyCode === 46 && ~value.charAt(e.target.selectionStart).search(newLine)) {
+    if (lines[lineNo].length + lines[lineNo + 1].length <= e.target.cols) return;
+
+    e.preventDefault();
+    return;
+  }
+
+  if (e.key.length > 1) return;
+
+  if (value.length < e.target.cols) return;
+
+  if (lines[lineNo].length > e.target.cols - 1) {
+      const col = (e.target.selectionStart - newLines) / lines.length;
+      let p1 = value.substr(0, e.target.selectionStart);
+      if (col === e.target.cols) {
+        p1 += '\r\n' + String.fromCharCode(e.keyCode);
+      } else {
+        p1 += String.fromCharCode(e.keyCode) + '\r\n';
+      }
+
+      e.target.value = p1 + value.substr(e.target.selectionStart, value.length);
+      e.target.selectionStart = p1.length - 1;
+      e.target.selectionEnd = p1.length - 1;
+
+
+    e.preventDefault();
+    return;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelector('textarea.limited').addEventListener('keydown', limitTextareaLine);
+});
+</script>
+
+
+<body class="body_temp">
+
+<nav class="navbar navbar-expand-md navbar-dark" style="background-color:#515151" id="mia_nav">
+    <a class="navbar-brand">
+        <img src="{{ url_for('static', filename='images/navbar-logo.png') }}" alt="logo" style="width:180px;height:40px;">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon" style="color: #725bb4;"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link nav-link-fade-up" href="{{ url_for('home.load') }}" style="color:#725bb4">HOME</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-fade-up" href="{{ url_for('page_manager.load', section='prog1')}}" style="color:#725bb4">PROG1</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-fade-up" href="{{ url_for('page_manager.load', section='prog2')}}" style="color:#725bb4">PROG2</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-fade-up" href="{{ url_for('page_manager.load', section='prog3')}}" style="color:#725bb4">PROG3</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-fade-up" href="{{ url_for('page_manager.load', section='tecweb')}}" style="color:#725bb4">TECWEB</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" style="padding-left: 50px;padding-right: 50px"> </a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link" style="padding-left: 50px;padding-right: 50px"> </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-fade-up" style="color:#ffffff;font-size: 15px;">{{session['userFirstName']}} {{session['userLastSurname']}}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-fade-up" href="{{ url_for('home.logout')}}" style="color:gray;font-size: 12px;float: right">LOGOUT</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<p class="small_blank_space"></p>
+
+<section id="post">
+    {% if not None %}
+    <div class="container mt-3">
+         <div class="media border p-3" style="background-color: lightgray; color: black">
+             <img src="../static/images/img_avatar.png" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+             <div class="media-body">
+                 <h4>{{ post[1] }} {{ post[2] }} <small><i>Posted {{ post[3] }}</i></small></h4>
+                 <h3> {{ post[4] }}</h3>
+                 <p> <pre>{{ post[5] }} </pre></p>
+
+                 <div  id="comments">
+                   {% if not None %}
+                    {% for x in comments %}
+                    <div class="container mt-3">
+                        <div class="media border p-3" style="background-color: lightgray; color: black">
+                            <img src="../static/images/img_avatar.png" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                            <div class="media-body">
+                                <h4>{{ x[0] }} {{ x[1] }} <small><i>Posted {{ x[2] }}</i></small></h4>
+                                <p> <pre>{{ x[3] }} </pre></p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                 </div>
+             </div>
+         </div>
+    </div>
+    {% endif %}
+</section>
+
+
+<p style="padding-top: 80px"></p>
+
+<div class="container" style="text-align: center">
+    <form action="{{url_for('view_post.create_comment')}}" method="post">
+        <div class="form-group">
+            <textarea class="form-control limited" rows="10" cols="80" id="body" name="body"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary button" style="width: 100px; height: 50px; background-color: #725bb4; color: white">Comment</button>
+    </form>
+</div>
+
+<p class="small_blank_space"></p>
+
+</body>
+</html>
